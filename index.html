@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motorpool System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Motorpool System — DSBER Trucking · 2C Crystal Trucking Services">
+<meta name="theme-color" content="#0b2f7a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Motorpool">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:#0b2f7a;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#0c1630;overflow:hidden}
+  #app{position:fixed;inset:0;width:100%;height:100%;border:0;background:#fff;
+       padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+  .screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+          padding:24px;text-align:center;background:linear-gradient(160deg,#0b2f7a 0%,#1d55c4 62%,#d21f2b 135%);color:#fff;z-index:5}
+  .screen[hidden]{display:none}
+  .card{background:rgba(255,255,255,.94);color:#0c1630;border-radius:22px;padding:26px 24px;max-width:380px;width:100%;
+        box-shadow:0 18px 50px rgba(0,8,30,.45)}
+  .card img{width:120px;height:auto;display:block;margin:0 auto 6px}
+  h1{font-size:22px;margin:6px 0 2px;color:#0b2f7a}
+  p{margin:6px 0;font-size:15px;line-height:1.45}
+  .sub{font-size:13px;color:#52607e}
+  .stripe{height:5px;border-radius:3px;margin:12px auto 4px;width:120px;background:linear-gradient(90deg,#d21f2b 33.3%,#fff 33.3% 66.6%,#1d55c4 66.6%);box-shadow:0 0 0 1px #dfe5f3}
+  button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:12px 18px;cursor:pointer;background:#1d55c4;color:#fff;min-height:46px}
+  button.ghost{background:#eef2fb;color:#0b2f7a}
+  .spin{width:30px;height:30px;border-radius:50%;border:4px solid #dfe5f3;border-top-color:#1d55c4;margin:14px auto 2px;animation:r 0.9s linear infinite}
+  @keyframes r{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.spin{animation:none}}
+  #install{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:9;display:flex;align-items:center;gap:12px;
+           background:#fff;border-radius:16px;padding:10px 12px;box-shadow:0 10px 34px rgba(0,8,30,.4);max-width:460px;margin:0 auto}
+  #install[hidden]{display:none}
+  #install img{width:40px;height:40px;object-fit:contain}
+  #install .t{flex:1;text-align:left;font-size:14px;line-height:1.3}
+  #install .t b{display:block;color:#0b2f7a}
+  #install button{padding:9px 14px;min-height:40px}
+  code{background:#eef2fb;border-radius:6px;padding:1px 6px;font-size:13px}
+</style>
+</head>
+<body>
+
+<iframe id="app" title="Motorpool System" hidden
+        allow="geolocation; camera; clipboard-read; clipboard-write"></iframe>
+
+<!-- Opening -->
+<div class="screen" id="loading">
+  <div class="card">
+    <img src="icons/logo.png" alt="Motorpool System logo">
+    <h1>Motorpool System</h1>
+    <p class="sub">DSBER Trucking · 2C Crystal Trucking Services</p>
+    <div class="stripe"></div>
+    <div class="spin" role="status" aria-label="Opening"></div>
+    <p class="sub" id="slow" hidden>Still opening… the signal may be weak.</p>
+  </div>
+</div>
+
+<!-- No signal when the app is opened -->
+<div class="screen" id="offline" hidden>
+  <div class="card">
+    <img src="icons/logo.png" alt="">
+    <h1>No signal</h1>
+    <p>The Motorpool System needs internet to open.</p>
+    <p class="sub">It will open by itself when the signal is back.</p>
+    <p><button id="retry">Try again</button></p>
+  </div>
+</div>
+
+<!-- Web app URL not set yet -->
+<div class="screen" id="setup" hidden>
+  <div class="card">
+    <img src="icons/logo.png" alt="">
+    <h1>One step left</h1>
+    <p>Open <code>config.js</code> in this GitHub repository and paste the Motorpool web app URL (it ends with <code>/exec</code>).</p>
+    <p class="sub">See README.md for the steps.</p>
+  </div>
+</div>
+
+<!-- Install prompt -->
+<div id="install" hidden>
+  <img src="icons/icon-192.png" alt="">
+  <div class="t"><b>Install Motorpool</b><span id="installText">Add it to your home screen for one-tap opening.</span></div>
+  <button id="installBtn">Install</button>
+  <button class="ghost" id="installNo" aria-label="Not now">✕</button>
+</div>
+
+<script src="config.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var frame = $('app'), loaded = false, slowTimer;
+  var url = String(window.MOTORPOOL_APP_URL || '').trim();
+  var ok = /^https:\/\/script\.google\.com\/.+\/exec(\?.*)?$/.test(url);
+
+  function show(id) { ['loading', 'offline', 'setup'].forEach(function (s) { $(s).hidden = s !== id; }); }
+
+  function open() {
+    if (!ok) { show('setup'); return; }
+    if (!navigator.onLine) { show('offline'); return; }
+    show('loading'); $('slow').hidden = true;
+    clearTimeout(slowTimer); slowTimer = setTimeout(function () { $('slow').hidden = false; }, 9000);
+    // Pass along anything after ? (for example single sign-on links from the other systems)
+    var q = location.search ? (url.indexOf('?') < 0 ? '?' : '&') + location.search.slice(1) : '';
+    frame.src = url + q;
+  }
+  frame.addEventListener('load', function () {
+    if (!frame.src) return;
+    loaded = true; clearTimeout(slowTimer); frame.hidden = false; show('none');
+  });
+  $('retry').addEventListener('click', open);
+  // If the app is already open, leave it alone when the signal drops: it has its own
+  // offline mode and keeps entries on the phone. Only reopen if it never loaded.
+  window.addEventListener('online', function () { if (!loaded) open(); });
+  open();
+
+  // ---- Install prompt (Chrome, Edge, Samsung Internet on Android; Chrome and Edge on a computer)
+  var deferred = null, KEY = 'mp_install_dismissed';
+  var dismissed = false; try { dismissed = localStorage.getItem(KEY) === '1'; } catch (e) {}
+  var standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault(); deferred = e;
+    if (!dismissed && !standalone) $('install').hidden = false;
+  });
+  $('installBtn').addEventListener('click', function () {
+    if (!deferred) { $('install').hidden = true; return; }
+    deferred.prompt();
+    deferred.userChoice.then(function () { deferred = null; $('install').hidden = true; });
+  });
+  $('installNo').addEventListener('click', function () {
+    $('install').hidden = true; try { localStorage.setItem(KEY, '1'); } catch (e) {}
+  });
+  window.addEventListener('appinstalled', function () { $('install').hidden = true; });
+  // iPhone / iPad: Safari has no install prompt, so show the two taps to do it by hand.
+  var ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (ios && !standalone && !dismissed) {
+    $('installText').textContent = 'Tap the Share button, then "Add to Home Screen".';
+    $('installBtn').hidden = true; $('install').hidden = false;
+  }
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+  }
+})();
+</script>
+</body>
+</html>
