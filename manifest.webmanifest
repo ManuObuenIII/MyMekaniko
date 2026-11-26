@@ -1,7 +1,7 @@
 {
-  "name": "Motorpool System",
-  "short_name": "Motorpool",
-  "description": "Motorpool system for DSBER Trucking and 2C Crystal Trucking Services: units, job orders, PMS, inspections, attendance, fuel, tires and parts.",
+  "name": "MyMekaniko",
+  "short_name": "MyMekaniko",
+  "description": "MyMekaniko, the motorpool system of DSBER Trucking and 2C Crystal Trucking Services: units, job orders, PMS, inspections, attendance, fuel, tires and parts.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

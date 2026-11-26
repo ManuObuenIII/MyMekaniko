@@ -1,15 +1,15 @@
-# Motorpool System — installable web app
+# MyMekaniko — installable web app
 
-This folder turns the Motorpool System (Google Apps Script) into an app that
+This folder turns MyMekaniko, the motorpool system (Google Apps Script), into an app that
 people can install on a phone or computer from a GitHub Pages link.
 
 | File | What it is |
 |---|---|
-| `index.html` | The app shell. Opens the Motorpool System full screen and shows the Install prompt. |
-| `config.js` | **The only file you edit.** Holds your Motorpool web app URL. |
+| `index.html` | The app shell. Opens MyMekaniko full screen and shows the Install prompt. |
+| `config.js` | **The only file you edit.** Holds your MyMekaniko web app URL. |
 | `manifest.webmanifest` | App name, colours and icons used when installed. |
 | `sw.js` | Service worker. Makes the app installable and keeps the shell on the device. |
-| `icons/` | The logo as PNG: `logo.png` (round badge), `logo-wide.png` and `logo-wide-white.png` (with the name), `logo-mechanic.png` (mechanic only, transparent), app icons 192 and 512, maskable icons, Apple icon, favicon. |
+| `*.png` | The logo as PNG: `logo.png` (round badge), `logo-wide.png` and `logo-wide-white.png` (with the name), `logo-mechanic.png` (mechanic only, transparent), app icons 192 and 512, maskable icons, Apple icon, favicon. |
 | `favicon.ico` | Browser tab icon. |
 | `.nojekyll` | Tells GitHub Pages to serve the files as they are. |
 
@@ -17,7 +17,7 @@ people can install on a phone or computer from a GitHub Pages link.
 
 1. **Create the repository.** On GitHub: New repository → name it `motorpool` → Public → Create.
 2. **Upload the files.** Add file → Upload files → drag in *everything inside this folder*
-   (including the `icons` folder) → Commit changes.
+   (all files go in the same place, no folders needed) → Commit changes.
    If `.nojekyll` does not upload by dragging, use Add file → Create new file, name it `.nojekyll`, and commit it empty.
 3. **Paste your web app URL.** Open `config.js` → pencil icon → replace
    `PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE` with the URL from
@@ -42,7 +42,7 @@ the same as when the system is opened directly.
   reports are kept on the phone and sent when the signal returns.
 - **Updating the system:** when you deploy a new version in Apps Script under the *same* deployment, the URL
   does not change and nothing here needs to be touched.
-- **Changing the logo:** replace the files in `icons/` with PNGs of the same names and sizes, then change
-  `motorpool-shell-v1` to `v2` in `sw.js` so phones pick up the new icons.
+- **Changing the logo:** replace the PNG files with new ones of the same names and sizes, then change
+  `motorpool-shell-v3` to `v4` in `sw.js` so phones pick up the new icons.
 - **Links from other systems:** anything after `?` in the GitHub link is passed to the system, so single
   sign-on links keep working.

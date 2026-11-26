@@ -1,4 +1,4 @@
-// Motorpool System — service worker.
+// MyMekaniko — service worker.
 // Keeps the app shell (this wrapper page and the icons) on the device so the app
 // installs and opens even with a weak signal. The system itself runs on
 // Google Apps Script inside the frame and is never cached here.
